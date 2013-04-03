@@ -134,6 +134,7 @@ class Car:
 car_Body = Car(1, (100, 100), (100,20), 0)
 
 crateImg = pygame.image.load('assets/images/crate.png')
+newCrateImg = crateImg.convert_alpha()
 
 class boxes:
     def __init__(self, position, mass, size, friction):
@@ -152,9 +153,20 @@ class boxes:
         self.color = color
         self.box_rect = self.box_shape.get_points()
 
-        pygame.draw.lines(screen, self.color, True, self.box_rect, 1)
+        #pygame.draw.lines(screen, self.color, True, self.box_rect, 1)
 
-crates = boxes((300,300), .2, (10,10), .8)
+        self.crateAngle = (math.degrees(self.box_body.angle))*-1
+        self.newCratePosition = self.box_body.position
+
+        self.newCrateRotation = pygame.transform.rotate(newCrateImg, self.crateAngle)
+
+        self.offset = Vec2d(self.newCrateRotation.get_size()) / 2.
+        self.newCratePosition = self.newCratePosition - self.offset
+
+        screen.blit(self.newCrateRotation, self.newCratePosition)
+
+
+crates = boxes((300,300), .2, (20,20), .8)
 
 class static_shapes:
     def __init__(self, size, position, friction, angle):
