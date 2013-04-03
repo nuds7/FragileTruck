@@ -32,7 +32,7 @@ class Car:
         self.body_mass = body_mass
         self.body_position = body_position
         self.body_size = body_size
-        self.body_body = pymunk.Body(self.body_mass, 100)
+        self.body_body = pymunk.Body(self.body_mass, 200)
         self.body_body.position = self.body_position
         self.body_poly = pymunk.Poly.create_box(self.body_body, self.body_size)
         
@@ -157,14 +157,17 @@ class boxes:
 crates = boxes((300,300), .2, (10,10), .8)
 
 class static_shapes:
-    def __init__(self, size, position, friction):
+    def __init__(self, size, position, friction, angle):
         self.size = size
         self.position = position
         self.friction = friction
+        self.angle = angle
         self.body = pymunk.Body()  # statics are created by not passing args through body constructor
         self.body.position = self.position
         self.static_box = pymunk.Poly.create_box(self.body, self.size)
-        
+
+        self.body.angle = self.angle
+
         self.static_box.friction = self.friction
 
         space.add(self.static_box)
@@ -174,8 +177,9 @@ class static_shapes:
         self.rect = self.static_box.get_points()
         pygame.draw.lines(screen, self.color, True, self.rect, 1)
 
-static_Floor = static_shapes((screenWidth - 10, 10), ((screenWidth/2), screenHeight-20), 1)
+static_Floor = static_shapes((screenWidth - 10, 10), ((screenWidth/2), screenHeight-20), 1, 0)
 
+ramp = static_shapes((240, 10), ((screenWidth/2), screenHeight-46), .8, 160)
 
 # Running Loop
 while running == True:
@@ -205,6 +209,7 @@ while running == True:
     car_Body.Draw(red)
     static_Floor.Draw(black)
     crates.draw(black)
+    ramp.Draw(black)
     #######################
     pygame.display.update()
     clock.tick(fps_limit)
