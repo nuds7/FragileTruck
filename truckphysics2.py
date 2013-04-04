@@ -72,10 +72,10 @@ class Car:
         
         space.add(self.wheelR_b, self.wheelR_shape)
 
-        self.left_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelL_b, (-self.body_size[0]//2, 0), (0,0), self.wheelL_position_y, 20.0, 2)
-        self.right_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelR_b, (self.body_size[0]//2, 0), (0,0), self.wheelR_position_y, 20.0, 2)
-        self.middle_spring = pymunk.constraint.DampedSpring(self.wheelL_b, self.wheelR_b, (0,0), (0,0), self.body_size[0]+self.wheel_base, self.body_size[0]+40, 12)
-
+        self.left_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelL_b, (-self.body_size[0]//2, 0), (0,0), 80, 30.0, 5)
+        self.right_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelR_b, (self.body_size[0]//2, 0), (0,0), 80, 30.0, 5)
+        self.middle_spring = pymunk.constraint.DampedSpring(self.wheelL_b, self.wheelR_b, (0,0), (0,0), self.body_size[0]+self.wheel_base, self.body_size[0]+40, 8)
+        
         self.left_pinjoint = pymunk.constraint.PinJoint(self.body_body, self.wheelL_b, (0,0), (0,0))
         self.right_pinjoint = pymunk.constraint.PinJoint(self.body_body, self.wheelR_b, (0,0), (0,0))
 
@@ -205,10 +205,10 @@ while running == True:
         car_Body.force(car_Body.body_body,(0,10))
     if key[pygame.K_LEFT]:
         car_Body.wheelL_b.angular_velocity -= 5
-        car_Body.wheelR_b.angular_velocity -= 5
+        car_Body.wheelR_b.angular_velocity -= 1
     if key[pygame.K_RIGHT]:
         car_Body.wheelL_b.angular_velocity += 5
-        car_Body.wheelR_b.angular_velocity += 5
+        car_Body.wheelR_b.angular_velocity += 1
     mousePos = pygame.mouse.get_pos() #Get mouse position
     clicks = pygame.mouse.get_pressed()
     if clicks == (1,0,0):
@@ -221,7 +221,7 @@ while running == True:
     space.step(0.02)
     body_space.step(0.02)
     car_Body.wheelL_b.angular_velocity *= .88
-    car_Body.wheelR_b.angular_velocity *= .88
+    #car_Body.wheelR_b.angular_velocity *= .88
     ##
     # Drawing
     screen.blit(bgImg, (0,0))
