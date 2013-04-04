@@ -5,8 +5,8 @@ import pymunk
 from pymunk import Vec2d
 pygame.init()
 # Settings
-screenWidth = 900
-screenHeight = 600
+screenWidth = 1000
+screenHeight = 700
 screenRes = screenWidth,screenHeight
 clock = pygame.time.Clock()
 running = True
@@ -45,7 +45,7 @@ class Car:
         self.wheelL_mass = 1
         self.wheelL_radius = (self.body_size[1]//1.5)
         self.wheelL_position_x = self.body_position[0]-(self.body_size[0]//2)+self.wheelL_radius - self.wheel_base
-        self.wheelL_position_y = self.body_position[1] + self.body_size[1] + 10
+        self.wheelL_position_y = self.body_position[1] + self.body_size[1]
         self.wheelL_position = self.wheelL_position_x, self.wheelL_position_y
         
         self.inertiaL = pymunk.moment_for_circle(self.wheelL_mass, 0, self.wheelL_radius)
@@ -60,7 +60,7 @@ class Car:
         self.wheelR_mass = 1
         self.wheelR_radius = (self.body_size[1]//1.5)
         self.wheelR_position_x = self.body_position[0]+(self.body_size[0]//2)-self.wheelL_radius + self.wheel_base
-        self.wheelR_position_y = self.body_position[1] + self.body_size[1] + 10
+        self.wheelR_position_y = self.body_position[1] + self.body_size[1]
         self.wheelR_position = self.wheelR_position_x, self.wheelR_position_y
         
         self.inertiaR = pymunk.moment_for_circle(self.wheelR_mass, 0, self.wheelR_radius)
@@ -72,14 +72,17 @@ class Car:
         
         space.add(self.wheelR_b, self.wheelR_shape)
 
-        self.left_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelL_b, (-self.body_size[0]//2, 0), (0,0), 80, 30.0, 5)
-        self.right_spring = pymunk.constraint.DampedSpring(self.body_body, self.wheelR_b, (self.body_size[0]//2, 0), (0,0), 80, 30.0, 5)
-        self.middle_spring = pymunk.constraint.DampedSpring(self.wheelL_b, self.wheelR_b, (0,0), (0,0), self.body_size[0]+self.wheel_base, self.body_size[0]+40, 8)
-        
-        self.left_pinjoint = pymunk.constraint.PinJoint(self.body_body, self.wheelL_b, (0,0), (0,0))
-        self.right_pinjoint = pymunk.constraint.PinJoint(self.body_body, self.wheelR_b, (0,0), (0,0))
+        self.rest_ln = 40
+        self.stiff = 80.0
+        self.damp = 14
+        self.left_spring1 = pymunk.constraint.DampedSpring(self.body_body, self.wheelL_b, (-self.body_size[0]//2 + self.wheelL_radius*2, 0), (0,0), self.rest_ln, self.stiff, self.damp)
+        self.left_spring2 = pymunk.constraint.DampedSpring(self.body_body, self.wheelL_b, (-self.body_size[0]//2 - self.wheelL_radius*2, 0), (0,0), self.rest_ln, self.stiff, self.damp)
 
-        space.add(self.left_spring, self.right_spring, self.left_pinjoint, self.right_pinjoint, self.middle_spring)
+        self.right_spring1 = pymunk.constraint.DampedSpring(self.body_body, self.wheelR_b, (self.body_size[0]//2 + self.wheelL_radius*2, 0), (0,0), self.rest_ln, self.stiff, self.damp)
+        self.right_spring2 = pymunk.constraint.DampedSpring(self.body_body, self.wheelR_b, (self.body_size[0]//2 - self.wheelL_radius*2, 0), (0,0), self.rest_ln, self.stiff, self.damp)
+        self.middle_spring = pymunk.constraint.DampedSpring(self.wheelL_b, self.wheelR_b, (0,0), (0,0), self.body_size[0]+self.wheel_base, self.stiff, 8)
+
+        space.add(self.left_spring1, self.left_spring2, self.right_spring1, self.right_spring2, self.middle_spring)
 
 
     def force(self, body_to_impulse, impulse):
@@ -120,7 +123,7 @@ class Car:
         pygame.draw.line(screen, red, (self.wheelR_pos), (self.p_on_wheel_body_R_X,self.p_on_wheel_body_R_Y), 1)
 
         
-car_Body = Car(1, (100, 100), (80,18), 10)
+car_Body = Car(1, (100, 100), (70,20), 0)
 
 class boxes:
     def __init__(self, position, mass, size, friction):
@@ -164,7 +167,8 @@ class static_shapes:
 
 static_Floor = static_shapes((screenWidth - 10, 10), ((screenWidth/2), screenHeight-20), 1, 0)
 
-ramp = static_shapes((240, 10), ((screenWidth/2), screenHeight-46), .8, 160)
+ramp = static_shapes((200, 10), ((screenWidth/2)-95, screenHeight-42), .8, 160)
+ramp2 = static_shapes((200, 10), ((screenWidth/2)+95, screenHeight-42), .8, -160)
 
 # Centering images on a body.
 car_body_image = pygame.image.load('assets/images/truck.png')
@@ -224,18 +228,17 @@ while running == True:
     #car_Body.wheelR_b.angular_velocity *= .88
     ##
     # Drawing
-    screen.blit(bgImg, (0,0))
-    #screen.fill(white)
-    #car_Body.Draw(blue)
+    #screen.blit(bgImg, (0,0))
+    screen.fill(white)
+    car_Body.Draw(blue)
     static_Floor.Draw(black)
     # crates.draw(black)
     ramp.Draw(black)
-
-    truck_image_rotate.draw(car_Body.body_body.position, car_Body.body_body.angle)
+    ramp2.Draw(black)
     crate_image_rotate.draw(crates.box_body.position, crates.box_body.angle)
+    truck_image_rotate.draw(car_Body.body_body.position, car_Body.body_body.angle)
     tire_image_rotate.draw(car_Body.wheelL_b.position, car_Body.wheelL_b.angle)
     tire_image_rotate.draw(car_Body.wheelR_b.position, car_Body.wheelR_b.angle)
-
     #######################
     pygame.display.update()
     clock.tick(fps_limit)
